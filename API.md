@@ -1,3 +1,8 @@
+## Install
+`composer update`
+
+edit `.env` file, add api key for `MAIL_CHIMP_API_KEY`
+
 ## Route
 
 **Lists**
