@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MailChimpException;
 use App\Http\Resources\ListResource;
+use Cache;
 use MailChimp;
 use Illuminate\Http\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,7 +36,7 @@ class MailChimpListController extends Controller
 
     /**
      * Create a new list
-     *
+     * 
      * @Route("/list")
      * @Method({"POST"})
      *
@@ -86,6 +87,8 @@ class MailChimpListController extends Controller
             ], $e->getCode());
         }
 
+        Cache::forget('mail-chimp-lists');
+
         return new ListResource($data);
     }
 
@@ -101,7 +104,7 @@ class MailChimpListController extends Controller
     public function show($list_id)
     {
         try {
-            $data = MailChimp::getData('lists/' . $list_id);
+            $data = MailChimp::getData("lists/$list_id");
         } catch (MailChimpException $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -156,7 +159,7 @@ class MailChimpListController extends Controller
         }
 
         try {
-            $data = MailChimp::request('PATCH', 'lists/' . $list_id, [
+            $data = MailChimp::request('PATCH', "lists/$list_id", [
                 'body' => json_encode($request->all()),
             ]);
         } catch (MailChimpException $e) {
@@ -165,6 +168,9 @@ class MailChimpListController extends Controller
                 'status' => false,
             ], $e->getCode());
         }
+
+        Cache::forget('mail-chimp-lists');
+        Cache::forget("mail-chimp-lists/$list_id");
 
         return new ListResource($data);
     }
@@ -181,13 +187,16 @@ class MailChimpListController extends Controller
     public function destroy($list_id)
     {
         try {
-            MailChimp::request('DELETE', 'lists/' . $list_id);
+            MailChimp::request('DELETE', "lists/$list_id");
         } catch (MailChimpException $e) {
             return response()->json([
                 'error' => $e->getMessage(),
                 'status' => false,
             ], $e->getCode());
         }
+
+        Cache::forget('mail-chimp-lists');
+        Cache::forget("mail-chimp-lists/$list_id");
 
         return response(null, 204);
     }

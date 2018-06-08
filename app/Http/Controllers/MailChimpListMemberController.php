@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MailChimpException;
 use App\Http\Resources\ListMemberResource;
+use Cache;
 use Illuminate\Http\Request;
 use MailChimp;
 use Symfony\Component\Routing\Annotation\Route;
@@ -76,6 +77,8 @@ class MailChimpListMemberController extends Controller
             ], $e->getCode());
         }
 
+        Cache::forget("mail-chimp-lists/$list_id/members");
+
         return new ListMemberResource($data);
     }
 
@@ -93,7 +96,7 @@ class MailChimpListMemberController extends Controller
     public function show($list_id, $hash)
     {
         try {
-            $data = MailChimp::getData("ists/$list_id/members/$hash");
+            $data = MailChimp::getData("lists/$list_id/members/$hash");
         } catch (MailChimpException $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -148,6 +151,9 @@ class MailChimpListMemberController extends Controller
             ], $e->getCode());
         }
 
+        Cache::forget("mail-chimp-lists/$list_id/members");
+        Cache::forget("mail-chimp-lists/$list_id/members/$hash");
+
         return new ListMemberResource($data);
     }
 
@@ -172,6 +178,9 @@ class MailChimpListMemberController extends Controller
                 'status' => false,
             ], $e->getCode());
         }
+
+        Cache::forget("mail-chimp-lists/$list_id/members");
+        Cache::forget("mail-chimp-lists/$list_id/members/$hash");
 
         return response(null, 204);
     }
