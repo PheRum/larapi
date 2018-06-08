@@ -1,18 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
+/**
+ * MailChimp Lists
+ */
+Route::group(['prefix' => 'list'], function () {
+    Route::get('/', 'MailChimpListController@index')->name('list.index');
+    Route::post('/', 'MailChimpListController@store')->name('list.store');
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+    Route::get('{list_id}', 'MailChimpListController@show')->name('list.show');
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    Route::patch('{list_id}', 'MailChimpListController@update')->name('list.update');
+    Route::delete('{list_id}', 'MailChimpListController@destroy')->name('list.destroy');
+
+    /**
+     * MailChimp Lists Members
+     */
+    Route::group(['prefix' => '{list_id}/member'], function () {
+        Route::get('/', 'MailChimpListMemberController@index')->name('list.member.index');
+        Route::post('/', 'MailChimpListMemberController@store')->name('list.member.store');
+
+        Route::get('{hash}', 'MailChimpListMemberController@show')->name('list.member.show');
+
+        Route::patch('{hash}', 'MailChimpListMemberController@update')->name('list.member.update');
+        Route::delete('{hash}', 'MailChimpListMemberController@destroy')->name('list.member.destroy');
+    });
 });
